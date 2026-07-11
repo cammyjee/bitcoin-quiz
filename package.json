@@ -1,0 +1,13 @@
+{
+  "name": "bsv-no-wallet",
+  "version": "1.0.0",
+  "description": "Move a coin on BSV with no wallet framework — just a key, a script, and a broadcast.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@bsv/sdk": "^1.7.6"
+  }
+}

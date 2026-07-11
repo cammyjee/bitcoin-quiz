@@ -1,0 +1,9 @@
+# ── NEVER commit private keys ─────────────────────────────────────────────
+# A .wif file IS a wallet. Anyone who gets it can take the coins. Keep this rule.
+*.wif
+
+# dependencies (run `npm install @bsv/sdk` to recreate)
+node_modules/
+
+# OS cruft
+.DS_Store
