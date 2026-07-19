@@ -370,6 +370,7 @@
       margin-bottom: 0;
     }
 
+
     footer {
       text-align: center;
       color: var(--text-muted);
@@ -412,6 +413,16 @@
         <div style="color: var(--success); font-weight: 600; font-size: 0.95rem; margin-top: 0.5rem; margin-bottom: 1rem;">
           Correct: The creator of Bitcoin intended Bitcoin to scale to be One Global Chain.
         </div>
+        
+        <div class="email-exchange-box" style="background-color: rgba(256,256,256,0.02); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem; margin-top: 1rem; margin-bottom: 1.5rem; text-align: left;">
+          <img src="satoshi_email_exchange.jpg" alt="Email exchange between Mike Hearn and Satoshi Nakamoto regarding scaling" style="width: 100%; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 1rem;">
+          <div style="font-size: 0.8rem; border-top: 1px solid var(--border-color); padding-top: 0.75rem; text-align: right;">
+            <a href="https://plan99.net/~mike/satoshi-emails/thread1.html" target="_blank" style="color: var(--bitcoin-orange); text-decoration: none; font-weight: 600;">
+              View the full email archive on plan99.net ↗
+            </a>
+          </div>
+        </div>
+
         <div class="input-row" style="margin-top: 1rem; margin-bottom: 0.75rem;">
           <input type="text" id="payout-addr-1" placeholder="Enter your Bitcoin SV payout address (e.g. 1KDd2...)">
           <button class="claim-btn" id="claim-btn-1" onclick="claimInBrowser()">Claim Satoshis</button>
