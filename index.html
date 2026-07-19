@@ -606,7 +606,7 @@
 
       <div class="card-footer">
         <span>Target Hash: 7692c3ad...</span>
-        <span>TxID: <a href="https://whatsonchain.com/tx/f9f7880530881d1e7435d8d85ed579e834ba41ffc8430fa6fc57802c153bda6d" target="_blank">f9f78805...da6d ↗</a></span>
+        <span>Treasury Faucet: <a href="https://whatsonchain.com/address/1KDd2HYHbfMdGd7HV3QAWaEquoKbZinmFc" target="_blank">1KDd2HYH...inmFc ↗</a></span>
       </div>
     </div>
 
@@ -630,10 +630,10 @@
   <script type="module">
     import { PrivateKey, Transaction, P2PKH, UnlockingScript, SatoshisPerKilobyte } from "https://esm.sh/@bsv/sdk";
 
-    const puzzle = {
-      txid: "f9f7880530881d1e7435d8d85ed579e834ba41ffc8430fa6fc57802c153bda6d",
-      targetHash: "7692c3ad3540bb803c020b3aee66cd8887123234ea0c6e7143c0add73ff431ed",
-      scriptHash: "d452a94eeac9191e7905260f31eb3d7a3a9d008597483ed4e9d7b7ffbdd08381"
+    const faucetConfig = {
+      treasuryAddress: "1KDd2HYHbfMdGd7HV3QAWaEquoKbZinmFc",
+      bountyAmount: 700,
+      targetHash: "7692c3ad3540bb803c020b3aee66cd8887123234ea0c6e7143c0add73ff431ed"
     };
 
     const ansInput = document.getElementById('ans-input');
@@ -750,19 +750,20 @@
       return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    // Check Live status of main puzzle (WOC ScriptHash query)
+    // Check Live status of main treasury faucet (WOC address unspent balance check)
     async function checkStatus() {
       try {
-        const response = await fetch(`https://api.whatsonchain.com/v1/bsv/main/script/${puzzle.scriptHash}/unspent`);
+        const response = await fetch(`https://api.whatsonchain.com/v1/bsv/main/address/${faucetConfig.treasuryAddress}/unspent`);
         if (!response.ok) throw new Error();
         const utxos = await response.json();
-        const isUnspent = utxos.some(u => u.tx_hash === puzzle.txid && u.tx_pos === 0);
-        if (isUnspent) {
+        const balance = utxos.reduce((acc, curr) => acc + curr.value, 0);
+        if (balance >= faucetConfig.bountyAmount) {
           badge.className = "badge badge-live";
           badge.innerText = "Active";
+          card.classList.add('active-lock');
         } else {
           badge.className = "badge badge-spent";
-          badge.innerText = "Claimed";
+          badge.innerText = "Empty (Refilling)";
           card.classList.remove('active-lock');
         }
       } catch (err) {
@@ -836,7 +837,7 @@
       const inputVal = ansInput.value.trim().toLowerCase();
       const addrVal = payoutInput.value.trim() || "<yourAddress>";
       const codeBlock = document.getElementById('claim-code-1');
-      codeBlock.innerText = `node bsv-quiz.js claim ${puzzle.txid} "${inputVal}" ${addrVal} --broadcast`;
+      codeBlock.innerText = `node bsv-quiz.js claim <puzzleTxid> "${inputVal}" ${addrVal} --broadcast`;
     }
 
     // Handle Input change in real-time
@@ -851,7 +852,7 @@
       }
 
       const inputHash = await sha256(text);
-      if (inputHash === puzzle.targetHash) {
+      if (inputHash === faucetConfig.targetHash) {
         statusSpan.className = "status-indicator status-match";
         statusSpan.innerText = "Match!";
         solvedArea.style.display = "block";
