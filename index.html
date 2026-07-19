@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bitcoin Reeducation Camp — Hash Puzzle Faucet</title>
+  <!-- Google Fonts for modern design -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-dark: #0c0e12;
+      --bg-card: #171a22;
+      --border-color: #262c3a;
+      --text-main: #f8fafc;
+      --text-muted: #8292ab;
+      --bitcoin-orange: #f7931a;
+      --bitcoin-orange-glow: rgba(247, 147, 26, 0.15);
+      --success: #10b981;
+      --success-glow: rgba(16, 185, 129, 0.1);
+      --error: #ef4444;
+      --font-sans: 'Plus Jakarta Sans', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+      padding: 2.5rem 1rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 680px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .logo-container {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--bitcoin-orange-glow);
+      border: 1px solid var(--bitcoin-orange);
+      color: var(--bitcoin-orange);
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      font-weight: 800;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 0 15px rgba(247, 147, 26, 0.2);
+    }
+
+    h1 {
+      font-size: 2.25rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      max-width: 580px;
+      margin: 0 auto;
+    }
+
+    /* Faucet Banner notice */
+    .faucet-banner {
+      background-color: var(--bitcoin-orange-glow);
+      border: 1px solid rgba(247, 147, 26, 0.3);
+      color: var(--text-main);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 2rem;
+      font-size: 0.85rem;
+      text-align: center;
+    }
+
+    .faucet-banner a {
+      color: var(--bitcoin-orange);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .faucet-banner a:hover {
+      text-decoration: underline;
+    }
+
+    .faucet-banner code {
+      background-color: rgba(0, 0, 0, 0.3);
+      padding: 0.15rem 0.35rem;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+    }
+
+    .section-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--bitcoin-orange);
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-title::after {
+      content: '';
+      flex-grow: 1;
+      height: 1px;
+      background-color: var(--border-color);
+    }
+
+    /* Compact Puzzle Card */
+    .puzzle-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.75rem;
+      transition: border-color 0.2s;
+      margin-bottom: 2rem;
+    }
+
+    .puzzle-card:hover {
+      border-color: #3b4456;
+    }
+
+    .puzzle-card.active-lock {
+      border-color: rgba(247, 147, 26, 0.4);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1.25rem;
+      gap: 1rem;
+    }
+
+    .title-area h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .badge-live {
+      background-color: var(--bitcoin-orange-glow);
+      color: var(--bitcoin-orange);
+      border-color: rgba(247, 147, 26, 0.2);
+    }
+
+    .badge-spent {
+      background-color: rgba(130, 146, 171, 0.05);
+      color: var(--text-muted);
+      border-color: rgba(130, 146, 171, 0.15);
+    }
+
+    .misconception {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      border-left: 2px solid var(--bitcoin-orange);
+      padding-left: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Forms */
+    .input-row {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    input[type="text"] {
+      flex-grow: 1;
+      background-color: var(--bg-dark);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-main);
+      padding: 0.75rem 1rem;
+      font-family: var(--font-sans);
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--bitcoin-orange);
+    }
+
+    .status-indicator {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .status-match {
+      color: var(--success);
+      font-weight: 600;
+    }
+
+    /* Claim Actions UI */
+    .claim-btn {
+      background-color: var(--bitcoin-orange);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-family: var(--font-sans);
+      font-weight: 700;
+      font-size: 0.95rem;
+      padding: 0.75rem 1.5rem;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .claim-btn:hover {
+      background-color: #fca130;
+    }
+
+    .claim-btn:active {
+      transform: scale(0.98);
+    }
+
+    .claim-btn:disabled {
+      background-color: var(--border-color);
+      color: var(--text-muted);
+      cursor: not-allowed;
+    }
+
+    .claim-action {
+      background-color: #0b0e14;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      margin-top: 1rem;
+      overflow: hidden;
+    }
+
+    .claim-header {
+      background-color: rgba(256, 256, 256, 0.02);
+      padding: 0.4rem 0.85rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .copy-btn {
+      background: none;
+      border: none;
+      color: var(--bitcoin-orange);
+      cursor: pointer;
+      font-family: var(--font-sans);
+      font-weight: 700;
+    }
+
+    .copy-btn:hover {
+      text-decoration: underline;
+    }
+
+    .claim-code {
+      padding: 0.85rem;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      overflow-x: auto;
+      white-space: pre;
+      color: #e2e8f0;
+    }
+
+    /* Sub-Details area (Minimalist) */
+    .card-footer {
+      margin-top: 1.25rem;
+      padding-top: 1rem;
+      border-top: 1px dashed var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .card-footer a {
+      color: var(--bitcoin-orange);
+      text-decoration: none;
+    }
+
+    .card-footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Status Notifications banner */
+    .claim-status-alert {
+      margin-top: 1rem;
+      padding: 0.85rem 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .claim-status-success {
+      background-color: var(--success-glow);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--success);
+    }
+
+    .claim-status-error {
+      background-color: rgba(239, 68, 68, 0.05);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      color: var(--error);
+    }
+
+    /* Educational Section (Simpler) */
+    .manifesto {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .manifesto h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+
+    .manifesto p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .manifesto p:last-child {
+      margin-bottom: 0;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border-color);
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="logo-container">₿</div>
+      <h1>Bitcoin Reeducation Camp</h1>
+      <p class="hero-desc">
+        Solve the low-level hash puzzle to debunk a core Bitcoin scaling myth. Claim the bounty instantly from your browser directly to your wallet.
+      </p>
+    </header>
+
+    <div class="faucet-banner">
+      ⚡ Need satoshis to fund/re-deploy this puzzle? Grab free coins from the <a href="https://utxoengineer.com/faucet/" target="_blank">UTXO Engineer Faucet ↗</a> and send them to your treasury address: <code>1KDd2HYHbfMdGd7HV3QAWaEquoKbZinmFc</code>
+    </div>
+
+    <h2 class="section-title">Active Puzzle</h2>
+
+    <div class="puzzle-card active-lock" id="card-1">
+      <div class="card-top">
+        <div class="title-area">
+          <h3>How many Global chains did Satoshi intend there to be?</h3>
+          <span style="color: var(--bitcoin-orange); font-size: 0.85rem; font-weight: 600;">Bounty: 700 sats</span>
+        </div>
+        <span class="badge" id="badge-1">Checking Status...</span>
+      </div>
+
+      <div class="misconception">
+        <strong>Misconception:</strong> "Bitcoin doesn't scale, so we must build off-chain L2s or alternative coins."
+      </div>
+
+      <div class="input-row">
+        <input type="text" id="ans-input" placeholder="Enter answer (lowercase)..." autofocus autocomplete="off">
+        <span class="status-indicator" id="status-1">Not matching</span>
+      </div>
+
+      <!-- Solved & claim workspace -->
+      <div id="solved-area-1" style="display: none;">
+        <div class="input-row" style="margin-top: 1rem; margin-bottom: 0.75rem;">
+          <input type="text" id="payout-addr-1" placeholder="Enter your Bitcoin SV payout address (e.g. 1KDd2...)" value="1KDd2HYHbfMdGd7HV3QAWaEquoKbZinmFc">
+          <button class="claim-btn" id="claim-btn-1" onclick="claimInBrowser()">Claim Satoshis</button>
+        </div>
+        
+        <div id="claim-alert-1" style="display: none;" class="claim-status-alert"></div>
+
+        <div class="claim-action" style="margin-top: 1.25rem;">
+          <div class="claim-header">
+            <span>Or run via CLI terminal</span>
+            <button class="copy-btn" onclick="copyClaim()">Copy Command</button>
+          </div>
+          <div class="claim-code" id="claim-code-1">node bsv-quiz.js claim ...</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); padding: 0.75rem; border-top: 1px solid var(--border-color); background-color: rgba(0,0,0,0.15);">
+            💡 <strong>CLI Setup Guide:</strong> To run this script locally:<br>
+            <code>git clone https://github.com/utxoengineer/bsv-no-wallet.git</code><br>
+            <code>cd bsv-no-wallet && npm install</code><br>
+            Then run the copied command.
+          </div>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <span>Target Hash: 7692c3ad...</span>
+        <span>TxID: <a href="https://whatsonchain.com/tx/f9f7880530881d1e7435d8d85ed579e834ba41ffc8430fa6fc57802c153bda6d" target="_blank">f9f78805...da6d ↗</a></span>
+      </div>
+    </div>
+
+    <!-- SIMPLE THEORY SECTION -->
+    <div class="manifesto">
+      <h3>Locking without Signatures</h3>
+      <p>
+        In Bitcoin, a coin (UTXO) isn't "sent" to an address. Instead, it is locked behind a mathematical formula: <code>OP_SHA256 &lt;targetHash&gt; OP_EQUAL</code>.
+      </p>
+      <p>
+        To spend it, you don't need a signature or private key. Anyone who presents the correct string that hashes to that target hash can unlock it and pay it to any destination address they choose.
+      </p>
+    </div>
+
+    <footer>
+      <p>Bitcoin Reeducation Camp • UTXO Engineer companion</p>
+    </footer>
+  </div>
+
+  <!-- Load @bsv/sdk from ESM.sh for direct browser-based transactions -->
+  <script type="module">
+    import { Transaction, P2PKH, UnlockingScript, SatoshisPerKilobyte } from "https://esm.sh/@bsv/sdk";
+
+    const puzzle = {
+      txid: "f9f7880530881d1e7435d8d85ed579e834ba41ffc8430fa6fc57802c153bda6d",
+      targetHash: "7692c3ad3540bb803c020b3aee66cd8887123234ea0c6e7143c0add73ff431ed",
+      scriptHash: "d452a94eeac9191e7905260f31eb3d7a3a9d008597483ed4e9d7b7ffbdd08381"
+    };
+
+    const ansInput = document.getElementById('ans-input');
+    const payoutInput = document.getElementById('payout-addr-1');
+    const claimBtn = document.getElementById('claim-btn-1');
+    const alertDiv = document.getElementById('claim-alert-1');
+    const statusSpan = document.getElementById('status-1');
+    const solvedArea = document.getElementById('solved-area-1');
+    const badge = document.getElementById('badge-1');
+    const card = document.getElementById('card-1');
+
+    // SHA-256 in browser
+    async function sha256(message) {
+      const msgBuffer = new TextEncoder().encode(message);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    // Check Live status of main puzzle
+    async function checkStatus() {
+      try {
+        const response = await fetch(`https://api.whatsonchain.com/v1/bsv/main/script/${puzzle.scriptHash}/unspent`);
+        if (!response.ok) throw new Error();
+        const utxos = await response.json();
+        const isUnspent = utxos.some(u => u.tx_hash === puzzle.txid && u.tx_pos === 0);
+        if (isUnspent) {
+          badge.className = "badge badge-live";
+          badge.innerText = "Active";
+        } else {
+          badge.className = "badge badge-spent";
+          badge.innerText = "Claimed";
+          card.classList.remove('active-lock');
+          
+          if (claimBtn) {
+            claimBtn.disabled = true;
+            claimBtn.innerText = "Claimed";
+          }
+        }
+      } catch (err) {
+        badge.className = "badge badge-spent";
+        badge.innerText = "Offline";
+      }
+    }
+
+    // Browser Claim logic
+    window.claimInBrowser = async function() {
+      const answer = ansInput.value.trim().toLowerCase();
+      const destAddr = payoutInput.value.trim();
+
+      if (!destAddr) {
+        showAlert("Please enter a valid BSV address.", "error");
+        return;
+      }
+
+      claimBtn.disabled = true;
+      claimBtn.innerText = "Claiming...";
+      showAlert("Fetching puzzle UTXO details from WhatsOnChain...", "");
+
+      try {
+        // 1. Fetch raw transaction hex
+        const txHexRes = await fetch(`https://api.whatsonchain.com/v1/bsv/main/tx/${puzzle.txid}/hex`);
+        if (!txHexRes.ok) throw new Error("Could not find transaction. WhatsOnChain might be rate-limiting.");
+        const srcHex = (await txHexRes.text()).trim();
+
+        // 2. Parse source transaction
+        const srcTx = Transaction.fromHex(srcHex);
+
+        // 3. Define unlocking mechanism
+        const puzzleUnlock = (ans) => {
+          const bytes = Array.from(new TextEncoder().encode(ans));
+          return {
+            sign: async () => new UnlockingScript([{ op: bytes.length, data: bytes }]),
+            estimateLength: async () => bytes.length + 1
+          };
+        };
+
+        // 4. Assemble claiming transaction
+        const tx = new Transaction();
+        tx.addInput({
+          sourceTransaction: srcTx,
+          sourceOutputIndex: 0,
+          unlockingScriptTemplate: puzzleUnlock(answer)
+        });
+        tx.addOutput({
+          lockingScript: new P2PKH().lock(destAddr),
+          change: true
+        });
+
+        // Set fee rates and sign
+        const feeRate = new SatoshisPerKilobyte(100);
+        await tx.fee(feeRate);
+        await tx.sign();
+
+        showAlert("Broadcasting transaction to Bitcoin mainnet...", "");
+
+        // 5. Broadcast transaction hex
+        const broadcastRes = await fetch(`https://api.whatsonchain.com/v1/bsv/main/tx/raw`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ txhex: tx.toHex() })
+        });
+        const resText = await broadcastRes.text();
+        if (!broadcastRes.ok) throw new Error(`Broadcast failed: ${resText}`);
+
+        const newTxid = resText.trim().replace(/"/g, '');
+        showAlert(`🎉 Satoshis claimed successfully! TxID: <a href="https://whatsonchain.com/tx/${newTxid}" target="_blank" style="color: inherit; text-decoration: underline;">${newTxid}</a>`, "success");
+        claimBtn.innerText = "Claimed";
+        checkStatus();
+      } catch (err) {
+        console.error(err);
+        showAlert(`Claim failed: ${err.message}`, "error");
+        claimBtn.disabled = false;
+        claimBtn.innerText = "Claim Satoshis";
+      }
+    };
+
+    function showAlert(text, type) {
+      alertDiv.style.display = "block";
+      alertDiv.innerHTML = text;
+      if (type === "success") {
+        alertDiv.className = "claim-status-alert claim-status-success";
+      } else if (type === "error") {
+        alertDiv.className = "claim-status-alert claim-status-error";
+      } else {
+        alertDiv.className = "claim-status-alert";
+        alertDiv.style.backgroundColor = "rgba(256, 256, 256, 0.05)";
+        alertDiv.style.border = "1px solid var(--border-color)";
+        alertDiv.style.color = "var(--text-muted)";
+      }
+    }
+
+    function updateClaimText() {
+      const inputVal = ansInput.value.trim().toLowerCase();
+      const addrVal = payoutInput.value.trim() || "<yourAddress>";
+      const codeBlock = document.getElementById('claim-code-1');
+      codeBlock.innerText = `node bsv-quiz.js claim ${puzzle.txid} "${inputVal}" ${addrVal} --broadcast`;
+    }
+
+    // Handle Input change in real-time
+    ansInput.addEventListener('input', async () => {
+      const text = ansInput.value.trim().toLowerCase();
+
+      if (!text) {
+        statusSpan.className = "status-indicator";
+        statusSpan.innerText = "Not matching";
+        solvedArea.style.display = "none";
+        return;
+      }
+
+      const inputHash = await sha256(text);
+      if (inputHash === puzzle.targetHash) {
+        statusSpan.className = "status-indicator status-match";
+        statusSpan.innerText = "Match!";
+        solvedArea.style.display = "block";
+        updateClaimText();
+      } else {
+        statusSpan.className = "status-indicator";
+        statusSpan.innerText = "Not matching";
+        solvedArea.style.display = "none";
+      }
+    });
+
+    payoutInput.addEventListener('input', updateClaimText);
+
+    window.copyClaim = function() {
+      const codeBlock = document.getElementById('claim-code-1');
+      navigator.clipboard.writeText(codeBlock.innerText);
+      const copyBtn = codeBlock.parentElement.querySelector('.copy-btn');
+      copyBtn.innerText = "Copied!";
+      setTimeout(() => {
+        copyBtn.innerText = "Copy Command";
+      }, 2000);
+    };
+
+    // Initialize Status
+    checkStatus();
+  </script>
+</body>
+</html>

@@ -23,9 +23,9 @@ const HERE = path.dirname(fileURLToPath(import.meta.url))   // so the key is fou
 
 // ═══ CONFIG ══════════════════════════════════════════════════════════════════
 const NETWORK  = 'main'                                   // 'main' | 'test'
-const QUESTION = "What pseudonym did Bitcoin's creator use? (two words, lowercase)"  // shown to players
-const ANSWER   = 'satoshi nakamoto'                       // exact bytes. Keep it lowercase/simple.
-const BOUNTY   = 1000                                     // sats to lock as the prize
+const QUESTION = "How many Global chains did Satoshi intend there to be?"  // shown to players
+const ANSWER   = 'one'                                     // exact bytes. Keep it lowercase/simple.
+const BOUNTY   = 700                                      // sats to lock as the prize
 
 // derived
 const IS_MAIN = NETWORK === 'main'

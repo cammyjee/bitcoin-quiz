@@ -8,6 +8,6 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@bsv/sdk": "^1.7.6"
+    "@bsv/sdk": "^2.1.7"
   }
 }
