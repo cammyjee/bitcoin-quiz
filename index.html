@@ -379,6 +379,122 @@
       border-top: 1px solid var(--border-color);
       width: 100%;
     }
+
+    /* Faucet Wallet UI */
+    .wallet-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .wallet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.75rem;
+    }
+
+    .wallet-type-btn {
+      background-color: rgba(247, 147, 26, 0.1);
+      border: 1px solid var(--bitcoin-orange);
+      color: var(--bitcoin-orange);
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: var(--font-sans);
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .wallet-type-btn:hover {
+      background-color: rgba(247, 147, 26, 0.2);
+    }
+
+    .wallet-type-btn:active {
+      transform: scale(0.98);
+    }
+
+    .wallet-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    @media (max-width: 480px) {
+      .wallet-body {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .wallet-metric {
+      background-color: rgba(0, 0, 0, 0.15);
+      border: 1px solid var(--border-color);
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+    }
+
+    .metric-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.25rem;
+    }
+
+    .wallet-address-text {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex-grow: 1;
+      color: #e2e8f0;
+    }
+
+    .wallet-balance {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--success);
+      font-family: var(--font-mono);
+    }
+
+    .wallet-backup-area {
+      background-color: rgba(0, 0, 0, 0.1);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .backup-toggle-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: 600;
+      font-family: var(--font-sans);
+    }
+
+    .backup-toggle-btn:hover {
+      color: var(--text-main);
+    }
+
+    .wallet-warning-banner {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+      background-color: rgba(256,256,256,0.01);
+      border-left: 2px solid var(--border-color);
+      padding-left: 0.75rem;
+    }
   </style>
 </head>
 <body>
@@ -391,6 +507,49 @@
         Solve the low-level hash puzzle to debunk a core Bitcoin scaling myth. Claim the bounty instantly from your browser directly to your wallet.
       </p>
     </header>
+
+    <!-- FAUCET WALLET PANEL -->
+    <div class="wallet-card" id="faucet-wallet">
+      <div class="wallet-header">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="font-size: 1.1rem;">👛</span>
+          <span style="font-weight: 700; font-size: 0.95rem;">Onboarding Web Wallet</span>
+        </div>
+        <button class="wallet-type-btn" id="connect-ext-btn" onclick="connectExtensionWallet()">⚡ Connect Yours Wallet</button>
+      </div>
+
+      <div class="wallet-body">
+        <div class="wallet-metric">
+          <div class="metric-label">Address</div>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <code class="wallet-address-text" id="wallet-addr-display">Generating...</code>
+            <button class="copy-btn" style="font-size: 0.8rem;" onclick="copyWalletAddr()">Copy</button>
+          </div>
+        </div>
+
+        <div class="wallet-metric">
+          <div class="metric-label">Balance</div>
+          <div class="wallet-balance" id="wallet-balance-display">0 sats</div>
+        </div>
+      </div>
+
+      <div class="wallet-backup-area">
+        <button class="backup-toggle-btn" id="toggle-key-btn" onclick="togglePrivateKeyDisplay()">🔑 Show Backup Private Key</button>
+        <div id="private-key-area" style="display: none; margin-top: 0.75rem;">
+          <p style="font-size: 0.75rem; color: var(--error); margin-bottom: 0.5rem; font-weight: 600;">
+            ⚠️ Keep this key safe. Anyone with this key can steal the funds in this wallet.
+          </p>
+          <div style="display: flex; gap: 0.5rem; align-items: center; background: rgba(0,0,0,0.2); padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-color);">
+            <code id="wallet-key-display" style="font-family: var(--font-mono); font-size: 0.75rem; word-break: break-all; flex-grow: 1;">WIF...</code>
+            <button class="copy-btn" style="font-size: 0.75rem;" onclick="copyWalletKey()">Copy</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="wallet-warning-banner">
+        💡 <strong>Note:</strong> This wallet key is temporarily generated for you in this browser tab. To secure these funds permanently, copy the private key above and import it into Yours Wallet, HandCash, or Electrum SV.
+      </div>
+    </div>
 
     <h2 class="section-title">Active Puzzle</h2>
 
@@ -469,7 +628,7 @@
 
   <!-- Load @bsv/sdk from ESM.sh for direct browser-based transactions -->
   <script type="module">
-    import { Transaction, P2PKH, UnlockingScript, SatoshisPerKilobyte } from "https://esm.sh/@bsv/sdk";
+    import { PrivateKey, Transaction, P2PKH, UnlockingScript, SatoshisPerKilobyte } from "https://esm.sh/@bsv/sdk";
 
     const puzzle = {
       txid: "f9f7880530881d1e7435d8d85ed579e834ba41ffc8430fa6fc57802c153bda6d",
@@ -486,6 +645,103 @@
     const badge = document.getElementById('badge-1');
     const card = document.getElementById('card-1');
 
+    // Wallet States
+    let activeAddress = "";
+    let isExtensionConnected = false;
+
+    // 1. Initialize Instant Web Faucet Wallet
+    function initWebWallet() {
+      try {
+        let wif = localStorage.getItem('faucet_wallet_wif');
+        let pk;
+        if (!wif) {
+          pk = PrivateKey.fromRandom();
+          wif = pk.toWif();
+          localStorage.setItem('faucet_wallet_wif', wif);
+        } else {
+          pk = PrivateKey.fromWif(wif);
+        }
+        
+        const addr = pk.toPublicKey().toAddress().toString();
+        activeAddress = addr;
+
+        // Update UI
+        document.getElementById('wallet-addr-display').innerText = addr;
+        document.getElementById('wallet-key-display').innerText = wif;
+        payoutInput.value = addr;
+      } catch (err) {
+        console.error("Failed to initialize web wallet:", err);
+      }
+    }
+
+    // 2. Global utility functions for UI
+    window.copyWalletAddr = function() {
+      navigator.clipboard.writeText(activeAddress);
+      alert("Address copied to clipboard!");
+    };
+
+    window.copyWalletKey = function() {
+      const keyText = document.getElementById('wallet-key-display').innerText;
+      navigator.clipboard.writeText(keyText);
+      alert("Private key WIF copied! Keep it extremely secure.");
+    };
+
+    window.togglePrivateKeyDisplay = function() {
+      const area = document.getElementById('private-key-area');
+      const btn = document.getElementById('toggle-key-btn');
+      if (area.style.display === "none") {
+        area.style.display = "block";
+        btn.innerText = "🔑 Hide Private Key";
+      } else {
+        area.style.display = "none";
+        btn.innerText = "🔑 Show Backup Private Key";
+      }
+    };
+
+    // 3. Connect BRC-100 browser extensions (Yours Wallet, etc.)
+    window.connectExtensionWallet = async function() {
+      if (typeof window.bitcoin !== 'undefined') {
+        try {
+          await window.bitcoin.connect();
+          const extAddr = await window.bitcoin.getDefaultAddress();
+          
+          activeAddress = extAddr;
+          isExtensionConnected = true;
+          
+          document.getElementById('wallet-addr-display').innerText = extAddr;
+          document.getElementById('wallet-balance-display').innerText = "Loading...";
+          document.getElementById('connect-ext-btn').innerText = "⚡ Connected";
+          document.getElementById('connect-ext-btn').disabled = true;
+          payoutInput.value = extAddr;
+          updateClaimText();
+
+          // Hide private key display for extension wallets
+          document.getElementById('toggle-key-btn').style.display = "none";
+          document.getElementById('private-key-area').style.display = "none";
+          
+          pollBalance(extAddr);
+        } catch (err) {
+          alert("Connection rejected: " + err.message);
+        }
+      } else {
+        alert("Yours Wallet (or a compatible BRC-100 extension) was not detected. Please install it, or use the generated Instant Web Wallet below!");
+      }
+    };
+
+    // 4. Poll balance from WhatsOnChain
+    async function pollBalance(addr) {
+      if (!addr) return;
+      try {
+        const response = await fetch(`https://api.whatsonchain.com/v1/bsv/main/address/${addr}/unspent`);
+        if (!response.ok) throw new Error();
+        const utxos = await response.json();
+        const total = utxos.reduce((acc, curr) => acc + curr.value, 0);
+        document.getElementById('wallet-balance-display').innerText = `${total} sats`;
+      } catch (err) {
+        console.warn("Could not fetch balance from WhatsOnChain:", err);
+      }
+    }
+
     // SHA-256 in browser
     async function sha256(message) {
       const msgBuffer = new TextEncoder().encode(message);
@@ -494,7 +750,7 @@
       return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    // Check Live status of main puzzle
+    // Check Live status of main puzzle (WOC ScriptHash query)
     async function checkStatus() {
       try {
         const response = await fetch(`https://api.whatsonchain.com/v1/bsv/main/script/${puzzle.scriptHash}/unspent`);
@@ -508,11 +764,6 @@
           badge.className = "badge badge-spent";
           badge.innerText = "Claimed";
           card.classList.remove('active-lock');
-          
-          if (claimBtn) {
-            claimBtn.disabled = true;
-            claimBtn.innerText = "Claimed";
-          }
         }
       } catch (err) {
         badge.className = "badge badge-spent";
@@ -520,7 +771,7 @@
       }
     }
 
-    // Browser Claim logic
+    // Browser Claim logic (Calls Faucet Worker API)
     window.claimInBrowser = async function() {
       const answer = ansInput.value.trim().toLowerCase();
       const destAddr = payoutInput.value.trim();
@@ -532,57 +783,31 @@
 
       claimBtn.disabled = true;
       claimBtn.innerText = "Claiming...";
-      showAlert("Fetching puzzle UTXO details from WhatsOnChain...", "");
+      showAlert("Sending claim request to secure faucet API...", "");
 
       try {
-        // 1. Fetch raw transaction hex
-        const txHexRes = await fetch(`https://api.whatsonchain.com/v1/bsv/main/tx/${puzzle.txid}/hex`);
-        if (!txHexRes.ok) throw new Error("Could not find transaction. WhatsOnChain might be rate-limiting.");
-        const srcHex = (await txHexRes.text()).trim();
+        const apiHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+          ? 'http://localhost:8787'
+          : 'https://api.oneglobalchain.com';
 
-        // 2. Parse source transaction
-        const srcTx = Transaction.fromHex(srcHex);
-
-        // 3. Define unlocking mechanism
-        const puzzleUnlock = (ans) => {
-          const bytes = Array.from(new TextEncoder().encode(ans));
-          return {
-            sign: async () => new UnlockingScript([{ op: bytes.length, data: bytes }]),
-            estimateLength: async () => bytes.length + 1
-          };
-        };
-
-        // 4. Assemble claiming transaction
-        const tx = new Transaction();
-        tx.addInput({
-          sourceTransaction: srcTx,
-          sourceOutputIndex: 0,
-          unlockingScriptTemplate: puzzleUnlock(answer)
-        });
-        tx.addOutput({
-          lockingScript: new P2PKH().lock(destAddr),
-          change: true
-        });
-
-        // Set fee rates and sign
-        const feeRate = new SatoshisPerKilobyte(100);
-        await tx.fee(feeRate);
-        await tx.sign();
-
-        showAlert("Broadcasting transaction to Bitcoin mainnet...", "");
-
-        // 5. Broadcast transaction hex
-        const broadcastRes = await fetch(`https://api.whatsonchain.com/v1/bsv/main/tx/raw`, {
+        const response = await fetch(`${apiHost}/claim`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ txhex: tx.toHex() })
+          body: JSON.stringify({
+            answer: answer,
+            address: destAddr
+          })
         });
-        const resText = await broadcastRes.text();
-        if (!broadcastRes.ok) throw new Error(`Broadcast failed: ${resText}`);
 
-        const newTxid = resText.trim().replace(/"/g, '');
-        showAlert(`🎉 Satoshis claimed successfully! TxID: <a href="https://whatsonchain.com/tx/${newTxid}" target="_blank" style="color: inherit; text-decoration: underline;">${newTxid}</a>`, "success");
+        const json = await response.json();
+        if (!response.ok || json.error) {
+          throw new Error(json.error || 'Server rejected claim request');
+        }
+
+        showAlert(`🎉 Satoshis claimed successfully! TxID: <a href="https://whatsonchain.com/tx/${json.txid}" target="_blank" style="color: inherit; text-decoration: underline;">${json.txid}</a>`, "success");
         claimBtn.innerText = "Claimed";
+        
+        pollBalance(destAddr);
         checkStatus();
       } catch (err) {
         console.error(err);
@@ -650,8 +875,13 @@
       }, 2000);
     };
 
-    // Initialize Status
+    // Initialize Faucet Setup
+    initWebWallet();
     checkStatus();
+    pollBalance(activeAddress);
+
+    // Refresh balance periodically
+    setInterval(() => pollBalance(activeAddress), 6000);
   </script>
 </body>
 </html>
