@@ -402,10 +402,6 @@
         <span class="badge" id="badge-1">Checking Status...</span>
       </div>
 
-      <div class="misconception">
-        <strong>Misconception:</strong> "Bitcoin doesn't scale, so we must build off-chain L2s or alternative coins."
-      </div>
-
       <div class="input-row">
         <input type="text" id="ans-input" placeholder="Enter answer (lowercase)..." autofocus autocomplete="off">
         <span class="status-indicator" id="status-1">Not matching</span>
@@ -413,6 +409,9 @@
 
       <!-- Solved & claim workspace -->
       <div id="solved-area-1" style="display: none;">
+        <div style="color: var(--success); font-weight: 600; font-size: 0.95rem; margin-top: 0.5rem; margin-bottom: 1rem;">
+          Correct: The creator of Bitcoin intended Bitcoin to scale to be One Global Chain.
+        </div>
         <div class="input-row" style="margin-top: 1rem; margin-bottom: 0.75rem;">
           <input type="text" id="payout-addr-1" placeholder="Enter your Bitcoin SV payout address (e.g. 1KDd2...)">
           <button class="claim-btn" id="claim-btn-1" onclick="claimInBrowser()">Claim Satoshis</button>
