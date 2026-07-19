@@ -105,22 +105,38 @@ export default {
         return new Response(JSON.stringify({ error: 'Faucet treasury is empty! Please notify the administrator.' }), { status: 500, headers: corsHeaders });
       }
 
-      // Grab the largest UTXO to spend
-      const u = utxos.sort((a, b) => b.value - a.value)[0];
+      // Sort UTXOs by value descending
+      const sortedUtxos = utxos.sort((a, b) => b.value - a.value);
 
-      // Fetch the full hex of the transaction being spent
-      const srcHexRes = await fetch(`https://api.whatsonchain.com/v1/bsv/main/tx/${u.tx_hash}/hex`);
-      if (!srcHexRes.ok) throw new Error('Failed to fetch source transaction hex');
-      const srcHex = (await srcHexRes.text()).trim();
-      const srcTx = Transaction.fromHex(srcHex);
-
-      // 6. Build the payment transaction (Treasury -> User)
+      // Add inputs until we have enough to cover the bounty + estimated fee
       const tx = new Transaction();
-      tx.addInput({
-        sourceTransaction: srcTx,
-        sourceOutputIndex: u.tx_pos,
-        unlockingScriptTemplate: new P2PKH().unlock(treasury)
-      });
+      let inputSum = 0;
+      const targetMin = BOUNTY_SATS + 100; // bounty + 100 sats safety buffer for fees
+
+      for (const u of sortedUtxos) {
+        // Fetch the full hex of the transaction being spent
+        const srcHexRes = await fetch(`https://api.whatsonchain.com/v1/bsv/main/tx/${u.tx_hash}/hex`);
+        if (!srcHexRes.ok) throw new Error(`Failed to fetch source transaction hex for ${u.tx_hash}`);
+        const srcHex = (await srcHexRes.text()).trim();
+        const srcTx = Transaction.fromHex(srcHex);
+
+        tx.addInput({
+          sourceTransaction: srcTx,
+          sourceOutputIndex: u.tx_pos,
+          unlockingScriptTemplate: new P2PKH().unlock(treasury)
+        });
+
+        inputSum += u.value;
+        if (inputSum >= targetMin) {
+          break; // We have enough inputs
+        }
+      }
+
+      if (inputSum < BOUNTY_SATS) {
+        return new Response(JSON.stringify({ error: `Insufficient treasury funds. Has ${inputSum} sats, needs at least ${BOUNTY_SATS} sats.` }), { status: 500, headers: corsHeaders });
+      }
+
+      // Build the payment transaction (Treasury -> User)
       tx.addOutput({
         lockingScript: new P2PKH().lock(address),
         satoshis: BOUNTY_SATS
